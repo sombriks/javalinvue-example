@@ -3,8 +3,10 @@
         <header>
             <span>JavalinVue demo app</span>
             <span v-if="$javalin.state.currentUser">Current user: '{{$javalin.state.currentUser}}'</span>
+            <span><a href="/logout">logout</a></span>
         </header>
         <slot></slot>
+      <footer>{{ $javalin.state.vueVersion }}</footer>
     </div>
 </template>
 <script>

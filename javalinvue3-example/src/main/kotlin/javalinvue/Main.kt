@@ -16,12 +16,20 @@ fun main() {
         config.accessManager { handler, ctx, permittedRoles ->
             when {
                 Role.ANYONE in permittedRoles -> handler.handle(ctx)
-                Role.LOGGED_IN in permittedRoles && currentUser(ctx) != null -> handler.handle(ctx)
+                Role.LOGGED_IN in permittedRoles && currentUser(ctx) != null -> handler.handle(
+                    ctx
+                )
+
                 else -> ctx.status(401).header(Header.WWW_AUTHENTICATE, "Basic")
             }
         }
         with(JavalinVue) {
-            stateFunction = { ctx -> mapOf("currentUser" to currentUser(ctx)) }
+            stateFunction = { ctx ->
+                mapOf(
+                    "currentUser" to currentUser(ctx),
+                    "vueVersion" to 3
+                )
+            }
             vueVersion { it.vue3("app") }
         }
     }.start(7000)
@@ -30,6 +38,10 @@ fun main() {
     app.get("/users", VueComponent("user-overview"), Role.ANYONE)
     app.get("/users/{user-id}", VueComponent("user-profile"), Role.LOGGED_IN)
     app.error(404, "html", VueComponent("not-found"))
+    app.get("/logout", fun(ctx: Context) {
+        ctx.clearCookieStore()
+        ctx.redirect("/")
+    }, Role.ANYONE)
 
     app.get("/api/users", UserController::getAll, Role.ANYONE)
     app.get("/api/users/{user-id}", UserController::getOne, Role.LOGGED_IN)
