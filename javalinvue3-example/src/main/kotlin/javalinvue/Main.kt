@@ -30,14 +30,17 @@ fun main() {
                     "vueVersion" to 3
                 )
             }
-            vueVersion { it.vue3("app") }
+            vueVersion { v -> v.vue3("app") }
         }
     }.start(7000)
 
     app.get("/", VueComponent("hello-world"), Role.ANYONE)
     app.get("/users", VueComponent("user-overview"), Role.ANYONE)
     app.get("/users/{user-id}", VueComponent("user-profile"), Role.LOGGED_IN)
+    app.get("/foo", VueComponent("foo-bar"), Role.ANYONE)
+
     app.error(404, "html", VueComponent("not-found"))
+
     app.get("/logout", fun(ctx: Context) {
         ctx.clearCookieStore()
         ctx.redirect("/")
